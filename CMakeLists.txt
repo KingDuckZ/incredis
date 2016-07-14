@@ -33,6 +33,7 @@ target_include_directories(${PROJECT_NAME} SYSTEM
 target_include_directories(${PROJECT_NAME}
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/incredis
 )
 
 target_link_libraries(${PROJECT_NAME}
