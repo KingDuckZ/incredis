@@ -9,6 +9,8 @@ find_package(CryptoPP 5.6)
 find_package(libev 4.0 REQUIRED)
 find_package(Boost 1.53.0 REQUIRED)
 
+add_shared_git_project("lib/duckhandy")
+
 add_library(${PROJECT_NAME} SHARED
 	src/command.cpp
 	src/scan_iterator.cpp
@@ -29,7 +31,7 @@ target_include_directories(${PROJECT_NAME} SYSTEM
 	PRIVATE ${Boost_INCLUDE_DIRS}
 )
 target_include_directories(${PROJECT_NAME}
-	PUBLIC ${CMAKE_SOURCE_DIR}/include
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -37,6 +39,7 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE ${HIREDIS_LIBRARIES}
 	PRIVATE ${LIBEV_LIBRARIES}
 	PRIVATE ${Boost_LIBRARIES}
+	PUBLIC duckhandy
 )
 
 configure_file(

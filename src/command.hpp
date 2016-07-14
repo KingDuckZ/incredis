@@ -29,6 +29,7 @@
 #include <vector>
 #include <utility>
 #include <boost/utility/string_ref.hpp>
+#include <boost/range/iterator_range_core.hpp>
 #include <ciso646>
 #include <stdexcept>
 
