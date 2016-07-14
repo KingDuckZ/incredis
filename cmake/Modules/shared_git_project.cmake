@@ -26,7 +26,7 @@ function (add_shared_git_project SUBMODULE_PATH)
 		message(FATAL_ERROR "Couldn't make up a name for given project in \"${submod_path}\"")
 	endif()
 
-	string(MAKE_C_IDENTIFIER "${submod_path}" proj_name_c_id)
+	string(MAKE_C_IDENTIFIER "${proj_name_orig}" proj_name_c_id)
 	string(TOUPPER ${proj_name_c_id} proj_name)
 
 	get_property(shared_projects_list GLOBAL PROPERTY SHARED_PROJECTS_LIST)
