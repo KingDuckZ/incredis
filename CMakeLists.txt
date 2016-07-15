@@ -4,7 +4,7 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 include(shared_git_project)
 
-find_package(hiredis 0.11.0 REQUIRED)
+find_package(hiredis 0.10.1 REQUIRED)
 find_package(CryptoPP 5.6)
 find_package(libev 4.0 REQUIRED)
 find_package(Boost 1.53.0 REQUIRED)
