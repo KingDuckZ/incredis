@@ -79,10 +79,22 @@ namespace redis {
 		return get_error_string(parReply);
 	}
 
+	template <>
+	const StatusString& get<StatusString> (const Reply& parReply) {
+		static const char empty_str[1] = "";
+		static const StatusString empty_status(empty_str, 0);
+		if (parReply.is_nil())
+			return empty_status;
+
+		assert(parReply.is_status());
+		return boost::get<StatusString>(parReply);
+	}
+
 	template const std::string& get<std::string> ( const Reply& parReply );
 	template const std::vector<Reply>& get<std::vector<Reply>> ( const Reply& parReply );
 	template const long long& get<long long> ( const Reply& parReply );
 	template const ErrorString& get<ErrorString> ( const Reply& parReply );
+	template const StatusString& get<StatusString> ( const Reply& parReply );
 
 	bool Reply::is_integer() const {
 		return RedisVariantType_Integer == this->which();
