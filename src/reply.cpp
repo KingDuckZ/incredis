@@ -21,16 +21,16 @@
 
 namespace redis {
 	const long long& get_integer (const Reply& parReply) {
-		assert(RedisVariantType_Integer == parReply.which());
+		assert(parReply.is_integer());
 		return boost::get<long long>(parReply);
 	}
 
 	const std::string& get_string (const Reply& parReply) {
 		static const std::string empty_str;
-		if (RedisVariantType_Nil == parReply.which())
+		if (parReply.is_nil())
 			return empty_str;
 
-		assert(RedisVariantType_String == parReply.which());
+		assert(parReply.is_string());
 		return boost::get<std::string>(parReply);
 	}
 
@@ -50,12 +50,12 @@ namespace redis {
 	}
 
 	const std::vector<Reply>& get_array (const Reply& parReply) {
-		assert(RedisVariantType_Array == parReply.which());
+		assert(parReply.is_array());
 		return boost::get<std::vector<Reply>>(parReply);
 	}
 
 	const ErrorString& get_error_string (const Reply& parReply) {
-		assert(RedisVariantType_Error == parReply.which());
+		assert(parReply.is_error());
 		return boost::get<ErrorString>(parReply);
 	}
 
@@ -83,4 +83,28 @@ namespace redis {
 	template const std::vector<Reply>& get<std::vector<Reply>> ( const Reply& parReply );
 	template const long long& get<long long> ( const Reply& parReply );
 	template const ErrorString& get<ErrorString> ( const Reply& parReply );
+
+	bool Reply::is_integer() const {
+		return RedisVariantType_Integer == this->which();
+	}
+
+	bool Reply::is_string() const {
+		return RedisVariantType_String == this->which();
+	}
+
+	bool Reply::is_array() const {
+		return RedisVariantType_Array == this->which();
+	}
+
+	bool Reply::is_error() const {
+		return RedisVariantType_Error == this->which();
+	}
+
+	bool Reply::is_status() const {
+		return RedisVariantType_Status == this->which();
+	}
+
+	bool Reply::is_nil() const {
+		return RedisVariantType_Nil == this->which();
+	}
 } //namespace redis

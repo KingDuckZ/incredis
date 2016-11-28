@@ -77,6 +77,13 @@ namespace redis {
 		Reply ( StatusString&& parVal ) : base_class(std::move(parVal)) {}
 		Reply ( std::nullptr_t parVal ) : base_class(parVal) {}
 		~Reply ( void ) noexcept = default;
+
+		bool is_integer ( void ) const;
+		bool is_string ( void ) const;
+		bool is_array ( void ) const;
+		bool is_error ( void ) const;
+		bool is_status ( void ) const;
+		bool is_nil ( void ) const;
 	};
 
 	const long long& get_integer ( const Reply& parReply );
