@@ -3,6 +3,7 @@ project(incredis CXX)
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 include(shared_git_project)
+include(CTest)
 
 find_package(hiredis 0.11.0 REQUIRED)
 find_package(CryptoPP 5.6)
@@ -59,6 +60,7 @@ if (CryptoPP_FOUND)
 else()
 	set (has_cryptopp_lib OFF)
 endif()
+set(INCREDIS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 install(TARGETS ${PROJECT_NAME}
 	LIBRARY DESTINATION lib
@@ -79,3 +81,7 @@ target_compile_features(${PROJECT_NAME}
 	PUBLIC cxx_noexcept
 	PUBLIC cxx_rvalue_references
 )
+
+if (BUILD_TESTING)
+	add_subdirectory(test/integration)
+endif()
