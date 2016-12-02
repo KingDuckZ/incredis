@@ -44,8 +44,8 @@ namespace redis {
 			~ScanIteratorBaseClass ( void ) noexcept = default;
 
 			bool is_connected ( void ) const;
-			Reply run ( const char* parCommand, long long parScanContext, std::size_t parCount );
-			Reply run ( const char* parCommand, const boost::string_ref& parParameter, long long parScanContext, std::size_t parCount );
+			Reply run ( const char* parCommand, RedisInt parScanContext, std::size_t parCount );
+			Reply run ( const char* parCommand, const boost::string_ref& parParameter, RedisInt parScanContext, std::size_t parCount );
 
 			bool is_equal ( const ScanIteratorBaseClass& parOther ) const { return m_command == parOther.m_command; }
 
@@ -78,9 +78,9 @@ namespace redis {
 
 	private:
 		template <typename T>
-		Reply forward_scan_command ( typename std::enable_if<HasScanTargetMethod<T>::value, long long>::type parContext );
+		Reply forward_scan_command ( typename std::enable_if<HasScanTargetMethod<T>::value, RedisInt>::type parContext );
 		template <typename T>
-		Reply forward_scan_command ( typename std::enable_if<not HasScanTargetMethod<T>::value, long long>::type parContext );
+		Reply forward_scan_command ( typename std::enable_if<not HasScanTargetMethod<T>::value, RedisInt>::type parContext );
 		bool is_end ( void ) const;
 
 		void increment ( void );
@@ -88,7 +88,7 @@ namespace redis {
 		const value_type& dereference ( void ) const;
 
 		std::vector<value_type> m_reply;
-		long long m_scan_context;
+		RedisInt m_scan_context;
 		std::size_t m_curr_index;
 	};
 

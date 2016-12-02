@@ -41,7 +41,7 @@ namespace redis {
 			return m_command and m_command->is_connected();
 		}
 
-		Reply ScanIteratorBaseClass::run (const char* parCommand, long long parScanContext, std::size_t parCount) {
+		Reply ScanIteratorBaseClass::run (const char* parCommand, RedisInt parScanContext, std::size_t parCount) {
 			const auto scan_context = dhandy::lexical_cast<std::string>(parScanContext);
 			const auto count_hint = dhandy::lexical_cast<std::string>(parCount);
 			if (m_match_pattern.empty())
@@ -50,7 +50,7 @@ namespace redis {
 				return m_command->run(parCommand, scan_context, "MATCH", m_match_pattern, "COUNT", count_hint);
 		}
 
-		Reply ScanIteratorBaseClass::run (const char* parCommand, const boost::string_ref& parParameter, long long parScanContext, std::size_t parCount) {
+		Reply ScanIteratorBaseClass::run (const char* parCommand, const boost::string_ref& parParameter, RedisInt parScanContext, std::size_t parCount) {
 			const auto scan_context = dhandy::lexical_cast<std::string>(parScanContext);
 			const auto count_hint = dhandy::lexical_cast<std::string>(parCount);
 			if (m_match_pattern.empty())

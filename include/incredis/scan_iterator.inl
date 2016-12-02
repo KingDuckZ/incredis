@@ -82,7 +82,7 @@ namespace redis {
 		}
 		else {
 			std::vector<Reply> array_reply;
-			long long new_context = m_scan_context;
+			RedisInt new_context = m_scan_context;
 
 			do {
 				auto whole_reply = this->forward_scan_command<ValueFetch>(new_context);
@@ -131,13 +131,13 @@ namespace redis {
 
 	template <typename ValueFetch>
 	template <typename T>
-	Reply ScanIterator<ValueFetch>::forward_scan_command (typename std::enable_if<HasScanTargetMethod<T>::value, long long>::type parContext) {
+	Reply ScanIterator<ValueFetch>::forward_scan_command (typename std::enable_if<HasScanTargetMethod<T>::value, RedisInt>::type parContext) {
 		return implem::ScanIteratorBaseClass::run(T::command(), T::scan_target(), parContext, T::work_count);
 	}
 
 	template <typename ValueFetch>
 	template <typename T>
-	Reply ScanIterator<ValueFetch>::forward_scan_command (typename std::enable_if<not HasScanTargetMethod<T>::value, long long>::type parContext) {
+	Reply ScanIterator<ValueFetch>::forward_scan_command (typename std::enable_if<not HasScanTargetMethod<T>::value, RedisInt>::type parContext) {
 		return implem::ScanIteratorBaseClass::run(T::command(), parContext, T::work_count);
 	}
 

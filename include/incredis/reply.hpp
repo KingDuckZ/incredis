@@ -23,6 +23,7 @@
 #include <vector>
 
 namespace redis {
+	typedef long long RedisInt;
 	struct Reply;
 
 	class ErrorString {
@@ -49,7 +50,7 @@ namespace redis {
 
 	namespace implem {
 		using RedisVariantType = boost::variant<
-			long long,
+			RedisInt,
 			std::string,
 			std::vector<Reply>,
 			ErrorString,
@@ -70,7 +71,7 @@ namespace redis {
 		using base_class = implem::RedisVariantType;
 
 		Reply ( void ) = default;
-		Reply ( long long parVal ) : base_class(parVal) {}
+		Reply ( RedisInt parVal ) : base_class(parVal) {}
 		Reply ( std::string&& parVal ) : base_class(std::move(parVal)) {}
 		Reply ( std::vector<Reply>&& parVal ) : base_class(std::move(parVal)) {}
 		Reply ( ErrorString&& parVal ) : base_class(std::move(parVal)) {}
@@ -86,8 +87,8 @@ namespace redis {
 		bool is_nil ( void ) const;
 	};
 
-	const long long& get_integer ( const Reply& parReply );
-	long long get_integer_autoconv_if_str ( const Reply& parReply );
+	const RedisInt& get_integer ( const Reply& parReply );
+	RedisInt get_integer_autoconv_if_str ( const Reply& parReply );
 	const std::string& get_string ( const Reply& parReply );
 	const std::vector<Reply>& get_array ( const Reply& parReply );
 	const ErrorString& get_error_string ( const Reply& parReply );
