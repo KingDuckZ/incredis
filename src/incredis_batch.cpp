@@ -74,6 +74,21 @@ namespace redis {
 		return *this;
 	}
 
+	IncRedisBatch& IncRedisBatch::set (boost::string_ref parKey, boost::string_ref parField, ADD_Mode parMode) {
+		switch(parMode) {
+		case ADD_None:
+			m_batch.run("SET", parKey, parField);
+			break;
+		case ADD_NX:
+			m_batch.run("SET", parKey, parField, "NX");
+			break;
+		case ADD_XX:
+			m_batch.run("SET", parKey, parField, "XX");
+			break;
+		}
+		return *this;
+	}
+
 	IncRedisBatch& IncRedisBatch::zrangebyscore (boost::string_ref parKey, double parMin, bool parMinIncl, double parMax, bool parMaxIncl, bool parWithScores) {
 		auto lower_bound = make_boundary(parMin, not parMinIncl);
 		auto upper_bound = make_boundary(parMax, not parMaxIncl);

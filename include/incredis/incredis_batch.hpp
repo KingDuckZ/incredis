@@ -33,6 +33,12 @@ namespace redis {
 			ZADD_None
 		};
 
+		enum ADD_Mode {
+			ADD_XX,
+			ADD_NX,
+			ADD_None
+		};
+
 		IncRedisBatch ( void ) = delete;
 		IncRedisBatch ( IncRedisBatch&& ) = default;
 		IncRedisBatch ( const Batch& ) = delete;
@@ -49,6 +55,11 @@ namespace redis {
 		IncRedisBatch& client_setname ( boost::string_ref parName );
 		template <typename... Args>
 		IncRedisBatch& del ( Args&&... parArgs );
+
+		//String
+		IncRedisBatch& set ( boost::string_ref parKey, boost::string_ref parField, ADD_Mode parMode );
+		template <typename... Args>
+		IncRedisBatch& set ( boost::string_ref parKey, boost::string_ref parField, ADD_Mode parMode, Args&&... parArgs );
 
 		//Hash
 		IncRedisBatch& hget ( boost::string_ref parKey, boost::string_ref parField );
@@ -136,6 +147,24 @@ namespace redis {
 		return *this;
 	}
 
+	template <typename... Args>
+	IncRedisBatch& IncRedisBatch::set (boost::string_ref parKey, boost::string_ref parField, ADD_Mode parMode, Args&&... parArgs) {
+		using dhandy::bt::index_range;
+
+		switch(parMode) {
+		case ADD_None:
+			implem::run_conv_floats_to_strings(m_batch, index_range<0, sizeof...(Args)>(), "SET", parKey, parField, std::forward<Args>(parArgs)...);
+			break;
+		case ADD_NX:
+			implem::run_conv_floats_to_strings(m_batch, index_range<0, sizeof...(Args)>(), "SET", parKey, parField, "NX", std::forward<Args>(parArgs)...);
+			break;
+		case ADD_XX:
+			implem::run_conv_floats_to_strings(m_batch, index_range<0, sizeof...(Args)>(), "SET", parKey, parField, "XX", std::forward<Args>(parArgs)...);
+			break;
+		}
+		return *this;
+	}
+
 	namespace implem {
 		template <std::size_t IGNORE_COUNT, std::size_t IDX, typename T, bool STRINGIZE=(IDX>=IGNORE_COUNT) && ((IDX-IGNORE_COUNT)%2)==0>
 		struct stringize_or_forward_impl {
@@ -144,7 +173,7 @@ namespace redis {
 		};
 		template <std::size_t IGNORE_COUNT, std::size_t IDX, typename T>
 		struct stringize_or_forward_impl<IGNORE_COUNT, IDX, T, true> {
-			static_assert(std::is_floating_point<T>::value, "Scores must be given as floating point values");
+			static_assert(std::is_floating_point<T>::value, "Value must be given as floating point number");
 			typedef std::string type;
 			static std::string do_it ( T parT ) { return boost::lexical_cast<std::string>(parT); }
 		};

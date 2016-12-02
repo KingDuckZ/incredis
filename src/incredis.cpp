@@ -127,11 +127,33 @@ namespace redis {
 	}
 
 	bool IncRedis::script_flush() {
-		const auto ret = get<StatusString>(m_command.run("SCRIPT", "FLUSH"));
+		const auto ret = redis::get<StatusString>(m_command.run("SCRIPT", "FLUSH"));
 		return ret.is_ok();
+	}
+
+	bool IncRedis::flushdb() {
+		const auto ret = redis::get<StatusString>(m_command.run("FLUSHDB"));
+		return ret.is_ok();
+	}
+
+	RedisInt IncRedis::dbsize() {
+		const auto ret = redis::get<RedisInt>(m_command.run("DBSIZE"));
+		return ret;
 	}
 
 	auto IncRedis::reply_to_string_list (const Reply& parReply) -> opt_string_list {
 		return optional_string_list(parReply);
+	}
+
+	auto IncRedis::get (boost::string_ref parKey) -> opt_string {
+		return optional_string(m_command.run("GET", parKey));
+	}
+
+	bool IncRedis::set (boost::string_ref parKey, boost::string_ref parField) {
+		auto batch = make_batch();
+		batch.set(parKey, parField, IncRedisBatch::ADD_None);
+		assert(batch.replies().size() == 1);
+		const auto ret = redis::get<StatusString>(batch.replies().front());
+		return ret.is_ok();
 	}
 } //namespace redis
