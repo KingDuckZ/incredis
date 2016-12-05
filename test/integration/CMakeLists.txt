@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
 	main.cpp
 	redis_connection_fixture.cpp
 	test_insert_retrieve.cpp
+	test_mass_io.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -25,12 +26,12 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE incredis
 )
 
-if ("${INCREDIS_TEST_HOSTNAME}" STREQUAL "")
+if ("${INCREDIS_TEST_HOSTNAME}" STREQUAL "" OR NOT "${INCREDIS_TEST_SOCKET}" STREQUAL "")
 	set(hostname_param "")
 else()
 	set(hostname_param --hostname ${INCREDIS_TEST_HOSTNAME})
 endif()
-if ("${INCREDIS_TEST_PORT}" STREQUAL "")
+if ("${INCREDIS_TEST_PORT}" STREQUAL "" OR NOT "${INCREDIS_TEST_SOCKET}" STREQUAL "")
 	set(port_param "")
 else()
 	set(port_param --port ${INCREDIS_TEST_PORT})
