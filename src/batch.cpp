@@ -17,13 +17,13 @@
 
 #include "batch.hpp"
 #include "async_connection.hpp"
+#include "thread_context.hpp"
 #include <hiredis/hiredis.h>
 #include <hiredis/async.h>
 #include <cassert>
 #include <future>
 #include <ciso646>
 #include <boost/iterator/transform_iterator.hpp>
-#include <atomic>
 #include <mutex>
 #include <condition_variable>
 #include <sstream>
@@ -113,24 +113,24 @@ namespace redis {
 	} //unnamed namespace
 
 	struct Batch::LocalData {
-		explicit LocalData ( std::atomic_size_t& parPendingFutures ) :
+		explicit LocalData ( ThreadContext& parThreadContext ) :
 			free_cmd_slot(),
 			futures_mutex(),
-			pending_futures(parPendingFutures)
+			thread_context(parThreadContext)
 		{
 		}
 
 		std::condition_variable free_cmd_slot;
 		std::mutex futures_mutex;
-		std::atomic_size_t& pending_futures;
+		ThreadContext& thread_context;
 	};
 
 	Batch::Batch (Batch&&) = default;
 
-	Batch::Batch (AsyncConnection* parConn, std::atomic_size_t& parPendingFutures) :
+	Batch::Batch (AsyncConnection* parConn, ThreadContext& parThreadContext) :
 		m_futures(),
 		m_replies(),
-		m_local_data(new LocalData(parPendingFutures)),
+		m_local_data(new LocalData(parThreadContext)),
 		m_async_conn(parConn)
 	{
 		assert(m_async_conn);
@@ -149,8 +149,8 @@ namespace redis {
 		assert(parLengths); //This /could/ be null, but I don't see why it should
 		assert(m_local_data);
 
-		const auto pending_futures = m_local_data->pending_futures.fetch_add(1);
-		auto* data = new HiredisCallbackData(m_local_data->pending_futures, m_local_data->free_cmd_slot);
+		const auto pending_futures = m_local_data->thread_context.pending_futures.fetch_add(1);
+		auto* data = new HiredisCallbackData(m_local_data->thread_context.pending_futures, m_local_data->free_cmd_slot);
 
 #if defined(VERBOSE_HIREDIS_COMM)
 		std::cout << "run_pvt(), " << pending_futures << " items pending... ";
@@ -160,7 +160,7 @@ namespace redis {
 			std::cout << " waiting... ";
 #endif
 			std::unique_lock<std::mutex> u_lock(m_local_data->futures_mutex);
-			m_local_data->free_cmd_slot.wait(u_lock, [this]() { return m_local_data->pending_futures < g_max_redis_unanswered_commands; });
+			m_local_data->free_cmd_slot.wait(u_lock, [this]() { return m_local_data->thread_context.pending_futures < g_max_redis_unanswered_commands; });
 		}
 #if defined(VERBOSE_HIREDIS_COMM)
 		std::cout << " emplace_back(future)... ";
@@ -217,7 +217,7 @@ namespace redis {
 		}
 
 		assert(m_local_data);
-		assert(0 == m_local_data->pending_futures);
+		assert(0 == m_local_data->thread_context.pending_futures);
 		m_futures.clear();
 		m_replies.clear();
 	}

@@ -25,12 +25,12 @@
 
 namespace std {
 	template <class R> class future;
-	template <class T> struct atomic;
 } //namespace std
 
 namespace redis {
 	class Command;
 	class AsyncConnection;
+	class ThreadContext;
 
 	class Batch {
 		friend class Command;
@@ -54,7 +54,7 @@ namespace redis {
 	private:
 		struct LocalData;
 
-		explicit Batch ( AsyncConnection* parConn, std::atomic<std::size_t>& parPendingFutures );
+		explicit Batch ( AsyncConnection* parConn, ThreadContext& parThreadContext );
 		void run_pvt ( int parArgc, const char** parArgv, std::size_t* parLengths );
 
 		std::vector<std::future<Reply>> m_futures;
