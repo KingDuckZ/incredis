@@ -204,9 +204,10 @@ namespace redis {
 	}
 
 	void AsyncConnection::wakeup_event_thread() {
-		std::lock_guard<std::mutex> lock(m_local_data->libev_mutex);
-		if (ev_async_pending(&m_local_data->watcher_wakeup) == false)
+		if (ev_async_pending(&m_local_data->watcher_wakeup) == false) {
+			std::lock_guard<std::mutex> lock(m_local_data->libev_mutex);
 			ev_async_send(m_libev_loop_thread.get(), &m_local_data->watcher_wakeup);
+		}
 	}
 
 	std::mutex& AsyncConnection::event_mutex() {
