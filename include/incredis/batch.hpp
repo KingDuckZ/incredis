@@ -23,10 +23,6 @@
 #include <vector>
 #include <memory>
 
-namespace std {
-	template <class R> class future;
-} //namespace std
-
 namespace redis {
 	class Command;
 	class AsyncConnection;
@@ -40,6 +36,7 @@ namespace redis {
 		~Batch ( void ) noexcept;
 
 		const std::vector<Reply>& replies ( void );
+		std::vector<Reply>& replies_nonconst ( void );
 		bool replies_requested ( void ) const;
 		void throw_if_failed ( void );
 
@@ -57,7 +54,7 @@ namespace redis {
 		explicit Batch ( AsyncConnection* parConn, ThreadContext& parThreadContext );
 		void run_pvt ( int parArgc, const char** parArgv, std::size_t* parLengths );
 
-		std::vector<std::future<Reply>> m_futures;
+		std::vector<std::unique_ptr<Reply>> m_futures;
 		std::vector<Reply> m_replies;
 		std::unique_ptr<LocalData> m_local_data;
 		AsyncConnection* m_async_conn;

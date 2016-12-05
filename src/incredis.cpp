@@ -40,7 +40,7 @@ namespace redis {
 				return boost::none;
 			}
 			else {
-				auto replies = get_array(parReply);
+				auto replies(get_array(parReply));
 				IncRedis::opt_string_list::value_type retval;
 				retval.reserve(replies.size());
 				for (const auto& rep : replies) {

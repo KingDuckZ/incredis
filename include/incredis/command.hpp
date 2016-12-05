@@ -65,7 +65,7 @@ namespace redis {
 		auto batch = make_batch();
 		batch.run(parCommand, std::forward<Args>(parArgs)...);
 		batch.throw_if_failed();
-		return batch.replies().front();
+		return std::move(batch.replies_nonconst().front());
 	}
 
 	template <typename T>
