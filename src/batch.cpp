@@ -18,6 +18,7 @@
 #include "batch.hpp"
 #include "async_connection.hpp"
 #include "thread_context.hpp"
+#include "reply_list.hpp"
 #include <hiredis/hiredis.h>
 #include <hiredis/async.h>
 #include <cassert>
@@ -41,13 +42,13 @@ namespace redis {
 			HiredisCallbackData ( std::atomic_size_t& parPendingFutures, std::atomic_size_t& parLocalPendingFutures, std::condition_variable& parSendCmdCond, std::condition_variable& parLocalCmdsCond ) :
 				pending_futures(parPendingFutures),
 				local_pending_futures(parLocalPendingFutures),
-				reply_ptr(nullptr),
+				reply_ptr(),
 				send_command_condition(parSendCmdCond),
 				local_commands_condition(parLocalCmdsCond)
 			{
 			}
 
-			Reply* reply_ptr;
+			ReplyList::ReplyPtr reply_ptr;
 			std::atomic_size_t& pending_futures;
 			std::atomic_size_t& local_pending_futures;
 			std::condition_variable& send_command_condition;
@@ -92,7 +93,6 @@ namespace redis {
 
 			if (parReply) {
 				auto reply = make_redis_reply_type(static_cast<redisReply*>(parReply));
-				assert(data->reply_ptr);
 				*data->reply_ptr = std::move(reply);
 			}
 			else {
@@ -108,7 +108,8 @@ namespace redis {
 			delete data;
 		}
 
-		int array_throw_if_failed (int parErrCount, int parMaxReportedErrors, const std::vector<Reply>& parReplies, std::ostream& parStream) {
+		template <typename R>
+		int array_throw_if_failed (int parErrCount, int parMaxReportedErrors, const R& parReplies, std::ostream& parStream) {
 			int err_count = 0;
 			for (const auto& rep : parReplies) {
 				if (rep.which() == RedisVariantType_Error) {
@@ -135,6 +136,7 @@ namespace redis {
 		{
 		}
 
+		ReplyList replies;
 		std::condition_variable free_cmd_slot;
 		std::condition_variable no_more_pending_futures;
 		std::mutex futures_mutex;
@@ -146,8 +148,6 @@ namespace redis {
 	Batch::Batch (Batch&&) = default;
 
 	Batch::Batch (AsyncConnection* parConn, ThreadContext& parThreadContext) :
-		m_futures(),
-		m_replies(),
 		m_local_data(new LocalData(parThreadContext)),
 		m_async_conn(parConn)
 	{
@@ -161,7 +161,6 @@ namespace redis {
 	}
 
 	void Batch::run_pvt (int parArgc, const char** parArgv, std::size_t* parLengths) {
-		assert(not replies_requested());
 		assert(parArgc >= 1);
 		assert(parArgv);
 		assert(parLengths); //This /could/ be null, but I don't see why it should
@@ -185,9 +184,7 @@ namespace redis {
 		std::cout << " emplace_back(future)... ";
 #endif
 
-		std::unique_ptr<Reply> new_reply(new Reply);
-		data->reply_ptr = new_reply.get();
-		m_futures.emplace_back(std::move(new_reply));
+		data->reply_ptr = m_local_data->replies.add();
 		{
 			std::lock_guard<std::mutex> lock(m_async_conn->event_mutex());
 			const int command_added = redisAsyncCommandArgv(m_async_conn->connection(), &hiredis_run_callback, data, parArgc, parArgv, parLengths);
@@ -202,28 +199,22 @@ namespace redis {
 	}
 
 	bool Batch::replies_requested() const {
-		return not m_replies.empty();
+		return static_cast<bool>(0 == m_local_data->local_pending_futures);
 	}
 
-	const std::vector<Reply>& Batch::replies() {
-		return replies_nonconst();
-	}
-
-	std::vector<Reply>& Batch::replies_nonconst() {
+	auto Batch::replies() const -> ConstReplies {
 		if (not replies_requested()) {
 			if (m_local_data->local_pending_futures > 0) {
 				std::unique_lock<std::mutex> u_lock(m_local_data->pending_futures_mutex);
 				m_local_data->no_more_pending_futures.wait(u_lock, [this]() { return m_local_data->local_pending_futures == 0; });
 			}
-
-			m_replies.reserve(m_futures.size());
-			for (auto& itm : m_futures) {
-				m_replies.emplace_back(std::move(*itm));
-			}
-
-			auto empty_vec = std::move(m_futures);
 		}
-		return m_replies;
+		return ConstReplies(m_local_data->replies.begin(), m_local_data->replies.end(), m_local_data->replies.size());
+	}
+
+	auto Batch::replies_nonconst() -> Replies {
+		replies();
+		return Replies(m_local_data->replies.begin(), m_local_data->replies.end(), m_local_data->replies.size());
 	}
 
 	void Batch::throw_if_failed() {
@@ -233,7 +224,7 @@ namespace redis {
 		oss << "Error in reply: ";
 		const int err_count = array_throw_if_failed(0, max_reported_errors, replies(), oss);
 		if (err_count) {
-			oss << " (showing " << err_count << '/' << max_reported_errors << " errors on " << replies().size() << " total replies)";
+			oss << " (showing " << err_count << '/' << max_reported_errors << " errors on " << m_local_data->replies.size() << " total replies)";
 			throw std::runtime_error(oss.str());
 		}
 	}
@@ -248,8 +239,7 @@ namespace redis {
 
 		assert(m_local_data);
 		assert(0 == m_local_data->local_pending_futures);
-		m_futures.clear();
-		m_replies.clear();
+		m_local_data->replies.clear();
 	}
 
 	RedisError::RedisError (const char* parMessage, std::size_t parLength) :

@@ -20,8 +20,9 @@
 
 #include "reply.hpp"
 #include "arg_to_bin_safe.hpp"
-#include <vector>
+#include "sized_range.hpp"
 #include <memory>
+#include <forward_list>
 
 namespace redis {
 	class Command;
@@ -31,12 +32,15 @@ namespace redis {
 	class Batch {
 		friend class Command;
 	public:
+		using ConstReplies = SizedRange<std::forward_list<Reply>::const_iterator>;
+		using Replies = SizedRange<std::forward_list<Reply>::iterator>;
+
 		Batch ( Batch&& parOther );
 		Batch ( const Batch& ) = delete;
 		~Batch ( void ) noexcept;
 
-		const std::vector<Reply>& replies ( void );
-		std::vector<Reply>& replies_nonconst ( void );
+		ConstReplies replies ( void ) const;
+		Replies replies_nonconst ( void );
 		bool replies_requested ( void ) const;
 		void throw_if_failed ( void );
 
@@ -54,8 +58,6 @@ namespace redis {
 		explicit Batch ( AsyncConnection* parConn, ThreadContext& parThreadContext );
 		void run_pvt ( int parArgc, const char** parArgv, std::size_t* parLengths );
 
-		std::vector<std::unique_ptr<Reply>> m_futures;
-		std::vector<Reply> m_replies;
 		std::unique_ptr<LocalData> m_local_data;
 		AsyncConnection* m_async_conn;
 	};

@@ -22,6 +22,7 @@ add_library(${PROJECT_NAME} SHARED
 	src/async_connection.cpp
 	src/incredis.cpp
 	src/incredis_batch.cpp
+	src/reply_list.cpp
 )
 
 target_include_directories(${PROJECT_NAME} SYSTEM

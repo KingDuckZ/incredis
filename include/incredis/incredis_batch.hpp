@@ -27,6 +27,8 @@
 namespace redis {
 	class IncRedisBatch {
 	public:
+		using ConstReplies = Batch::ConstReplies;
+
 		enum ZADD_Mode {
 			ZADD_XX_UpdateOnly,
 			ZADD_NX_AlwaysAdd,
@@ -46,7 +48,7 @@ namespace redis {
 
 		void reset ( void );
 		void throw_if_failed ( void );
-		const std::vector<Reply>& replies ( void ) { return m_batch.replies(); }
+		ConstReplies replies ( void ) { return m_batch.replies(); }
 		Batch& batch ( void ) { return m_batch; }
 		const Batch& batch ( void ) const { return m_batch; }
 
