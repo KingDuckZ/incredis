@@ -198,12 +198,12 @@ namespace redis {
 		m_async_conn->wakeup_event_thread();
 	}
 
-	bool Batch::replies_requested() const {
+	bool Batch::replies_ready() const {
 		return static_cast<bool>(0 == m_local_data->local_pending_futures);
 	}
 
 	auto Batch::replies() const -> ConstReplies {
-		if (not replies_requested()) {
+		if (not replies_ready()) {
 			if (m_local_data->local_pending_futures > 0) {
 				std::unique_lock<std::mutex> u_lock(m_local_data->pending_futures_mutex);
 				m_local_data->no_more_pending_futures.wait(u_lock, [this]() { return m_local_data->local_pending_futures == 0; });

@@ -41,7 +41,7 @@ namespace redis {
 
 		ConstReplies replies ( void ) const;
 		Replies replies_nonconst ( void );
-		bool replies_requested ( void ) const;
+		bool replies_ready ( void ) const;
 		void throw_if_failed ( void );
 
 		template <typename... Args>
