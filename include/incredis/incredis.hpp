@@ -89,6 +89,7 @@ namespace redis {
 		//String
 		opt_string get ( boost::string_ref parKey );
 		bool set ( boost::string_ref parKey, boost::string_ref parField );
+		RedisInt incr ( boost::string_ref parKey );
 
 	private:
 		static opt_string_list reply_to_string_list ( const Reply& parReply );

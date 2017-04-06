@@ -156,4 +156,9 @@ namespace redis {
 		const auto ret = redis::get<StatusString>(batch.replies().front());
 		return ret.is_ok();
 	}
+
+	RedisInt IncRedis::incr (boost::string_ref parKey) {
+		const auto ret = redis::get<RedisInt>(m_command.run("INCR", parKey));
+		return ret;
+	}
 } //namespace redis
