@@ -45,6 +45,7 @@ namespace redis {
 		typedef boost::optional<std::vector<opt_string>> opt_string_list;
 
 		IncRedis ( std::string&& parAddress, uint16_t parPort );
+		IncRedis ( IncRedis&& ) = default;
 		explicit IncRedis ( std::string&& parSocket );
 		~IncRedis ( void ) noexcept = default;
 

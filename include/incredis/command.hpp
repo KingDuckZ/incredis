@@ -37,6 +37,7 @@ namespace redis {
 	class Command {
 	public:
 		Command ( std::string&& parAddress, uint16_t parPort );
+		Command ( Command&& );
 		explicit Command ( std::string&& parSocket );
 		~Command ( void ) noexcept;
 

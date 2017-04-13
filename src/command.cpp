@@ -48,6 +48,8 @@ namespace redis {
 	{
 	}
 
+	Command::Command (Command&&) = default;
+
 	Command::Command (std::string&& parSocket) :
 		Command(std::move(parSocket), 0)
 	{
