@@ -141,6 +141,11 @@ namespace redis {
 		return ret;
 	}
 
+	bool IncRedis::expire (boost::string_ref parKey, RedisInt parTTL) {
+		const auto ret = redis::get<RedisInt>(m_command.run("EXPIRE", parKey, dhandy::lexical_cast<std::string>(parTTL)));
+		return (ret == 1 ? true : false);
+	}
+
 	auto IncRedis::reply_to_string_list (const Reply& parReply) -> opt_string_list {
 		return optional_string_list(parReply);
 	}

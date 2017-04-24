@@ -70,6 +70,8 @@ namespace redis {
 		opt_string hget ( boost::string_ref parKey, boost::string_ref parField );
 		template <typename... Args>
 		opt_string_list hmget ( boost::string_ref parKey, Args&&... parArgs );
+		template <typename... Args>
+		opt_string_list hmset ( boost::string_ref parKey, Args&&... parArgs );
 		int hincrby ( boost::string_ref parKey, boost::string_ref parField, int parInc );
 
 		//Set
@@ -86,6 +88,7 @@ namespace redis {
 		//Misc
 		bool flushdb ( void );
 		RedisInt dbsize ( void );
+		bool expire ( boost::string_ref parKey, RedisInt parTTL );
 
 		//String
 		opt_string get ( boost::string_ref parKey );
@@ -102,6 +105,13 @@ namespace redis {
 	auto IncRedis::hmget (boost::string_ref parKey, Args&&... parArgs) -> opt_string_list {
 		static_assert(sizeof...(Args) > 0, "No fields specified");
 		return reply_to_string_list(m_command.run("HMGET", parKey, std::forward<Args>(parArgs)...));
+	}
+
+	template <typename... Args>
+	auto IncRedis::hmset (boost::string_ref parKey, Args&&... parArgs) -> opt_string_list {
+		static_assert(sizeof...(Args) > 0, "No fields specified");
+		static_assert(sizeof...(Args) % 2 == 0, "Uneven number of parameters received");
+		return reply_to_string_list(m_command.run("HMSET", parKey, std::forward<Args>(parArgs)...));
 	}
 } //namespace redis
 
