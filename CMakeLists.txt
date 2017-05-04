@@ -5,6 +5,8 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 include(shared_git_project)
 include(CTest)
 
+option(INCREDIS_FORCE_DISABLE_TESTS "Ignore unit tests even if BUILD_TESTING is set to ON - useful if you want to disable incredis tests from your top-level cmake project" OFF)
+
 find_package(hiredis 0.11.0 REQUIRED)
 find_package(CryptoPP 5.6)
 find_package(libev 4.0 REQUIRED)
@@ -83,6 +85,6 @@ target_compile_features(${PROJECT_NAME}
 	PUBLIC cxx_rvalue_references
 )
 
-if (BUILD_TESTING)
+if (BUILD_TESTING AND NOT INCREDIS_FORCE_DISABLE_TESTS)
 	add_subdirectory(test/integration)
 endif()
