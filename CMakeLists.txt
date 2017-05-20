@@ -7,10 +7,20 @@ include(CTest)
 
 option(INCREDIS_FORCE_DISABLE_TESTS "Ignore unit tests even if BUILD_TESTING is set to ON - useful if you want to disable incredis tests from your top-level cmake project" OFF)
 set(CMAKE_INSTALL_INCLUDEDIR "" CACHE PATH "Specify the output directory for header files (default is include)")
+set(CMAKE_INSTALL_LIBDIR "" CACHE PATH "Specify the output directory for libraries (default is lib)")
+set(CMAKE_INSTALL_PKGCONFIGDIR "" CACHE PATH "Specify the output directory for pkgconfig files (default is lib/pkgconfig)")
+set(PROJECT_URL "https://github.com/KingDuckZ/incredis")
+set(PROJECT_DESCRIPTION "A lightweight C++ wrapper around hiredis")
 
 if(NOT CMAKE_INSTALL_INCLUDEDIR)
 	set(CMAKE_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include")
 endif(NOT CMAKE_INSTALL_INCLUDEDIR)
+if(NOT CMAKE_INSTALL_LIBDIR)
+	set(CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
+endif(NOT CMAKE_INSTALL_LIBDIR)
+if(NOT CMAKE_INSTALL_PKGCONFIGDIR)
+	set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+endif(NOT CMAKE_INSTALL_PKGCONFIGDIR)
 
 find_package(hiredis 0.11.0 REQUIRED)
 find_package(CryptoPP 5.6)
@@ -35,13 +45,12 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME} SYSTEM
 	PUBLIC ${Boost_INCLUDE_DIRS}
 	PRIVATE ${HIREDIS_INCLUDE_DIRS}
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/better-enums
+	PUBLIC lib/better-enums
 	PRIVATE ${LIBEV_INCLUDE_DIRS}
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/incredis
 )
@@ -57,6 +66,11 @@ configure_file(
 	src/incredisConfig.h.in
 	${CMAKE_CURRENT_BINARY_DIR}/incredisConfig.h
 )
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/pkgconfig/incredis.pc.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/incredis.pc"
+	@ONLY
+)
 
 target_compile_definitions(${PROJECT_NAME}
 	PRIVATE EV_COMPAT3=0
@@ -71,13 +85,14 @@ else()
 endif()
 set(INCREDIS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin
 	ARCHIVE DESTINATION lib/static
 )
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT ${PROJECT_NAME}Config DESTINATION share/${PROJECT_NAME}/cmake)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/incredis.pc" DESTINATION ${CMAKE_INSTALL_PKGCONFIGDIR})
 
 target_compile_features(${PROJECT_NAME}
 	PUBLIC cxx_nullptr
