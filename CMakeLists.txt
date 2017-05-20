@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
-project(incredis CXX)
+project(incredis VERSION 0.1.0 LANGUAGES CXX)
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 include(shared_git_project)
 include(CTest)
 
 option(INCREDIS_FORCE_DISABLE_TESTS "Ignore unit tests even if BUILD_TESTING is set to ON - useful if you want to disable incredis tests from your top-level cmake project" OFF)
+set(CMAKE_INSTALL_INCLUDEDIR "" CACHE PATH "Specify the output directory for header files (default is include)")
+
+if(NOT CMAKE_INSTALL_INCLUDEDIR)
+	set(CMAKE_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include")
+endif(NOT CMAKE_INSTALL_INCLUDEDIR)
 
 find_package(hiredis 0.11.0 REQUIRED)
 find_package(CryptoPP 5.6)
@@ -32,9 +37,10 @@ target_include_directories(${PROJECT_NAME} SYSTEM
 	PRIVATE ${HIREDIS_INCLUDE_DIRS}
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/better-enums
 	PRIVATE ${LIBEV_INCLUDE_DIRS}
-	PRIVATE ${Boost_INCLUDE_DIRS}
 )
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME} PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:include>
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/incredis
@@ -70,6 +76,8 @@ install(TARGETS ${PROJECT_NAME}
 	RUNTIME DESTINATION bin
 	ARCHIVE DESTINATION lib/static
 )
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(EXPORT ${PROJECT_NAME}Config DESTINATION share/${PROJECT_NAME}/cmake)
 
 target_compile_features(${PROJECT_NAME}
 	PUBLIC cxx_nullptr
