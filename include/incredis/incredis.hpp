@@ -23,7 +23,7 @@
 #include "scan_iterator.hpp"
 #include <boost/optional.hpp>
 #include <string>
-#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_view.hpp>
 #include <vector>
 #include <boost/range/iterator_range_core.hpp>
 #include <boost/range/empty.hpp>
@@ -61,26 +61,26 @@ namespace redis {
 		const Command& command ( void ) const { return m_command; }
 
 		//Scan
-		scan_range scan ( boost::string_ref parPattern=boost::string_ref() );
-		hscan_range hscan ( boost::string_ref parKey, boost::string_ref parPattern=boost::string_ref() );
-		sscan_range sscan ( boost::string_ref parKey, boost::string_ref parPattern=boost::string_ref() );
-		zscan_range zscan ( boost::string_ref parKey, boost::string_ref parPattern=boost::string_ref() );
+		scan_range scan ( boost::string_view parPattern=boost::string_view() );
+		hscan_range hscan ( boost::string_view parKey, boost::string_view parPattern=boost::string_view() );
+		sscan_range sscan ( boost::string_view parKey, boost::string_view parPattern=boost::string_view() );
+		zscan_range zscan ( boost::string_view parKey, boost::string_view parPattern=boost::string_view() );
 
 		//Hash
-		opt_string hget ( boost::string_ref parKey, boost::string_ref parField );
+		opt_string hget ( boost::string_view parKey, boost::string_view parField );
 		template <typename... Args>
-		opt_string_list hmget ( boost::string_ref parKey, Args&&... parArgs );
+		opt_string_list hmget ( boost::string_view parKey, Args&&... parArgs );
 		template <typename... Args>
-		bool hmset ( boost::string_ref parKey, Args&&... parArgs );
-		int hincrby ( boost::string_ref parKey, boost::string_ref parField, int parInc );
+		bool hmset ( boost::string_view parKey, Args&&... parArgs );
+		int hincrby ( boost::string_view parKey, boost::string_view parField, int parInc );
 
 		//Set
-		opt_string_list srandmember ( boost::string_ref parKey, int parCount );
-		opt_string srandmember ( boost::string_ref parKey );
-		opt_string_list smembers ( boost::string_ref parKey );
+		opt_string_list srandmember ( boost::string_view parKey, int parCount );
+		opt_string srandmember ( boost::string_view parKey );
+		opt_string_list smembers ( boost::string_view parKey );
 
 		//Sorted set
-		opt_string_list zrangebyscore ( boost::string_ref parKey, double parMin, bool parMinIncl, double parMax, bool parMaxIncl, bool parWithScores );
+		opt_string_list zrangebyscore ( boost::string_view parKey, double parMin, bool parMinIncl, double parMax, bool parMaxIncl, bool parWithScores );
 
 		//Script
 		bool script_flush ( void );
@@ -88,12 +88,12 @@ namespace redis {
 		//Misc
 		bool flushdb ( void );
 		RedisInt dbsize ( void );
-		bool expire ( boost::string_ref parKey, RedisInt parTTL );
+		bool expire ( boost::string_view parKey, RedisInt parTTL );
 
 		//String
-		opt_string get ( boost::string_ref parKey );
-		bool set ( boost::string_ref parKey, boost::string_ref parField );
-		RedisInt incr ( boost::string_ref parKey );
+		opt_string get ( boost::string_view parKey );
+		bool set ( boost::string_view parKey, boost::string_view parField );
+		RedisInt incr ( boost::string_view parKey );
 
 	private:
 		static opt_string_list reply_to_string_list ( const Reply& parReply );
@@ -102,13 +102,13 @@ namespace redis {
 	};
 
 	template <typename... Args>
-	auto IncRedis::hmget (boost::string_ref parKey, Args&&... parArgs) -> opt_string_list {
+	auto IncRedis::hmget (boost::string_view parKey, Args&&... parArgs) -> opt_string_list {
 		static_assert(sizeof...(Args) > 0, "No fields specified");
 		return reply_to_string_list(m_command.run("HMGET", parKey, std::forward<Args>(parArgs)...));
 	}
 
 	template <typename... Args>
-	bool IncRedis::hmset (boost::string_ref parKey, Args&&... parArgs) {
+	bool IncRedis::hmset (boost::string_view parKey, Args&&... parArgs) {
 		static_assert(sizeof...(Args) > 0, "No fields specified");
 		static_assert(sizeof...(Args) % 2 == 0, "Uneven number of parameters received");
 		const auto ret = redis::get<StatusString>(m_command.run("HMSET", parKey, std::forward<Args>(parArgs)...));

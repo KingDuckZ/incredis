@@ -77,7 +77,7 @@ namespace redis {
 		return m_local_data->async_connection.is_connected();
 	}
 
-	boost::string_ref Command::connection_error() const {
+	boost::string_view Command::connection_error() const {
 		return m_local_data->async_connection.connection_error();
 	}
 

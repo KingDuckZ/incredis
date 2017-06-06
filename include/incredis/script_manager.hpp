@@ -22,7 +22,7 @@
 #if defined(WITH_CRYPTOPP)
 #	define MAKE_SHA1_WITH_CRYPTOPP
 #endif
-#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_view.hpp>
 #if defined(MAKE_SHA1_WITH_CRYPTOPP)
 #	include <set>
 #else
@@ -30,7 +30,6 @@
 #endif
 #include <string>
 #include <array>
-#include <boost/utility/string_ref.hpp>
 
 namespace redis {
 	class Command;
@@ -39,12 +38,12 @@ namespace redis {
 	public:
 		explicit ScriptManager ( Command* parCommand );
 
-		boost::string_ref submit_lua_script ( const std::string& parScript );
+		boost::string_view submit_lua_script ( const std::string& parScript );
 
 	private:
 		using Sha1Array = std::array<char, 40>;
 
-		boost::string_ref add_lua_script_ifn ( const std::string& parScript );
+		boost::string_view add_lua_script_ifn ( const std::string& parScript );
 
 		Command* const m_command;
 #if defined(MAKE_SHA1_WITH_CRYPTOPP)
@@ -54,7 +53,7 @@ namespace redis {
 #endif
 	};
 
-	inline boost::string_ref ScriptManager::submit_lua_script (const std::string& parScript) {
+	inline boost::string_view ScriptManager::submit_lua_script (const std::string& parScript) {
 		return add_lua_script_ifn(parScript);
 	}
 } //namespace redis

@@ -21,7 +21,7 @@
 #include <memory>
 #include <string>
 #include <cstdint>
-#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_view.hpp>
 
 struct redisAsyncContext;
 struct ev_loop;
@@ -44,7 +44,7 @@ namespace redis {
 		void wait_for_disconnect ( void );
 
 		bool is_connected ( void ) const;
-		boost::string_ref connection_error ( void ) const;
+		boost::string_view connection_error ( void ) const;
 		void wakeup_event_thread ( void );
 		std::mutex& event_mutex ( void );
 		redisAsyncContext* connection ( void );

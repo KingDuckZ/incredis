@@ -25,7 +25,7 @@ namespace redis {
 
 	template <typename ValueFetch>
 	template <typename Dummy, typename>
-	ScanIterator<ValueFetch>::ScanIterator (Command* parCommand, bool parEnd, boost::string_ref parMatchPattern) :
+	ScanIterator<ValueFetch>::ScanIterator (Command* parCommand, bool parEnd, boost::string_view parMatchPattern) :
 		implem::ScanIteratorBaseClass(parCommand, parMatchPattern),
 		implem::ScanIteratorBaseIterator<ValueFetch>(),
 		ValueFetch(),
@@ -45,7 +45,7 @@ namespace redis {
 
 	template <typename ValueFetch>
 	template <typename Dummy, typename>
-	ScanIterator<ValueFetch>::ScanIterator (Command* parCommand, boost::string_ref parKey, bool parEnd, boost::string_ref parMatchPattern) :
+	ScanIterator<ValueFetch>::ScanIterator (Command* parCommand, boost::string_view parKey, bool parEnd, boost::string_view parMatchPattern) :
 		implem::ScanIteratorBaseClass(parCommand, parMatchPattern),
 		implem::ScanIteratorBaseIterator<ValueFetch>(),
 		ValueFetch(parKey),

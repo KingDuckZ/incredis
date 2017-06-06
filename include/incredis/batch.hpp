@@ -75,12 +75,12 @@ namespace redis {
 		using implem::arg_to_bin_safe_char;
 		using implem::arg_to_bin_safe_length;
 		using implem::MakeCharInfo;
-		using boost::string_ref;
+		using boost::string_view;
 
 		this->run_pvt(
 			static_cast<int>(arg_count),
-			CharPointerArray{ (arg_to_bin_safe_char(string_ref(parCommand))), MakeCharInfo<typename std::remove_const<typename std::remove_reference<Args>::type>::type>(std::forward<Args>(parArgs)).data()... }.data(),
-			LengthArray{ arg_to_bin_safe_length(string_ref(parCommand)), arg_to_bin_safe_length(std::forward<Args>(parArgs))... }.data()
+			CharPointerArray{ (arg_to_bin_safe_char(string_view(parCommand))), MakeCharInfo<typename std::remove_const<typename std::remove_reference<Args>::type>::type>(std::forward<Args>(parArgs)).data()... }.data(),
+			LengthArray{ arg_to_bin_safe_length(string_view(parCommand)), arg_to_bin_safe_length(std::forward<Args>(parArgs))... }.data()
 		);
 
 		return *this;

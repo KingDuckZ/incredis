@@ -45,11 +45,11 @@ namespace redis {
 	}
 
 #if defined(MAKE_SHA1_WITH_CRYPTOPP)
-	boost::string_ref ScriptManager::add_lua_script_ifn (const std::string& parScript) {
+	boost::string_view ScriptManager::add_lua_script_ifn (const std::string& parScript) {
 		assert(m_command->is_connected());
 
 		if (parScript.empty())
-			return boost::string_ref();
+			return boost::string_view();
 
 		using dhandy::lexical_cast;
 
@@ -75,7 +75,7 @@ namespace redis {
 		auto it_found = m_known_hashes.find(sha1_array);
 		const bool was_present = (m_known_hashes.end() != it_found);
 		if (was_present) {
-			return boost::string_ref(it_found->data(), it_found->size());
+			return boost::string_view(it_found->data(), it_found->size());
 		}
 
 		auto reply = m_command->run("SCRIPT", "LOAD", parScript);
@@ -85,16 +85,16 @@ namespace redis {
 		const auto it_inserted = m_known_hashes.insert(it_found, sha1_array);
 		(void)reply;
 
-		return boost::string_ref(it_inserted->data(), it_inserted->size());
+		return boost::string_view(it_inserted->data(), it_inserted->size());
 	}
 #else
-	boost::string_ref ScriptManager::add_lua_script_ifn (const std::string& parScript) {
+	boost::string_view ScriptManager::add_lua_script_ifn (const std::string& parScript) {
 		assert(m_command->is_connected());
 
 		auto it_found = m_known_scripts.find(parScript);
 		const bool was_present = (m_known_scripts.end() != it_found);
 		if (was_present) {
-			return boost::string_ref(it_found->second.data(), it_found->second.size());
+			return boost::string_view(it_found->second.data(), it_found->second.size());
 		}
 
 		auto reply = m_command->run("SCRIPT", "LOAD", parScript);
@@ -105,7 +105,7 @@ namespace redis {
 		std::copy(sha1_str.begin(), sha1_str.end(), sha1_array.begin());
 		auto it_inserted = m_known_scripts.insert(it_found, std::make_pair(parScript, sha1_array));
 
-		return boost::string_ref(it_inserted->second.data(), it_inserted->second.size());
+		return boost::string_view(it_inserted->second.data(), it_inserted->second.size());
 	}
 #endif
 } //namespace redis

@@ -20,7 +20,7 @@
 
 #include "duckhandy/compatibility.h"
 #include <cstddef>
-#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_view.hpp>
 #include <string>
 
 namespace redis {
@@ -45,8 +45,8 @@ namespace redis {
 		};
 
 		template<>
-		struct MakeCharInfo<boost::string_ref> {
-			MakeCharInfo ( const boost::string_ref& parData ) : m_data(parData.data()), m_size(parData.size()) {}
+		struct MakeCharInfo<boost::string_view> {
+			MakeCharInfo ( const boost::string_view& parData ) : m_data(parData.data()), m_size(parData.size()) {}
 			const char* data ( void ) const { return m_data; }
 			std::size_t size ( void ) const { return m_size; }
 
@@ -73,7 +73,7 @@ namespace redis {
 			std::size_t size ( void ) const { return m_data.size(); }
 
 		private:
-			boost::string_ref m_data;
+			boost::string_view m_data;
 		};
 
 		template <typename T>

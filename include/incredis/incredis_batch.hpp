@@ -20,7 +20,7 @@
 
 #include "batch.hpp"
 #include "duckhandy/sequence_bt.hpp"
-#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_view.hpp>
 #include <boost/lexical_cast.hpp>
 #include <type_traits>
 
@@ -54,33 +54,33 @@ namespace redis {
 
 		//Misc
 		IncRedisBatch& select ( int parIndex );
-		IncRedisBatch& client_setname ( boost::string_ref parName );
+		IncRedisBatch& client_setname ( boost::string_view parName );
 		template <typename... Args>
 		IncRedisBatch& del ( Args&&... parArgs );
 
 		//String
-		IncRedisBatch& set ( boost::string_ref parKey, boost::string_ref parField, ADD_Mode parMode );
+		IncRedisBatch& set ( boost::string_view parKey, boost::string_view parField, ADD_Mode parMode );
 		template <typename... Args>
-		IncRedisBatch& set ( boost::string_ref parKey, boost::string_ref parField, ADD_Mode parMode, Args&&... parArgs );
+		IncRedisBatch& set ( boost::string_view parKey, boost::string_view parField, ADD_Mode parMode, Args&&... parArgs );
 
 		//Hash
-		IncRedisBatch& hget ( boost::string_ref parKey, boost::string_ref parField );
+		IncRedisBatch& hget ( boost::string_view parKey, boost::string_view parField );
 		template <typename... Args>
-		IncRedisBatch& hmget ( boost::string_ref parKey, Args&&... parArgs );
+		IncRedisBatch& hmget ( boost::string_view parKey, Args&&... parArgs );
 		template <typename... Args>
-		IncRedisBatch& hmset ( boost::string_ref parKey, Args&&... parArgs );
-		IncRedisBatch& hincrby ( boost::string_ref parKey, boost::string_ref parField, int parInc );
+		IncRedisBatch& hmset ( boost::string_view parKey, Args&&... parArgs );
+		IncRedisBatch& hincrby ( boost::string_view parKey, boost::string_view parField, int parInc );
 
 		//Set
-		IncRedisBatch& srandmember ( boost::string_ref parKey, int parCount );
-		IncRedisBatch& srandmember ( boost::string_ref parKey );
+		IncRedisBatch& srandmember ( boost::string_view parKey, int parCount );
+		IncRedisBatch& srandmember ( boost::string_view parKey );
 		template <typename... Args>
-		IncRedisBatch& sadd ( boost::string_ref parKey, Args&&... parArgs );
+		IncRedisBatch& sadd ( boost::string_view parKey, Args&&... parArgs );
 
 		//Sorted set
 		template <typename... Args>
-		IncRedisBatch& zadd ( boost::string_ref parKey, ZADD_Mode parMode, bool parChange, Args&&... parArgs );
-		IncRedisBatch& zrangebyscore ( boost::string_ref parKey, double parMin, bool parMinIncl, double parMax, bool parMaxIncl, bool parWithScores );
+		IncRedisBatch& zadd ( boost::string_view parKey, ZADD_Mode parMode, bool parChange, Args&&... parArgs );
+		IncRedisBatch& zrangebyscore ( boost::string_view parKey, double parMin, bool parMinIncl, double parMax, bool parMaxIncl, bool parWithScores );
 
 		//Script
 		IncRedisBatch& script_flush ( void );
@@ -95,14 +95,14 @@ namespace redis {
 	} //namespace implem
 
 	template <typename... Args>
-	IncRedisBatch& IncRedisBatch::hmget (boost::string_ref parKey, Args&&... parArgs) {
+	IncRedisBatch& IncRedisBatch::hmget (boost::string_view parKey, Args&&... parArgs) {
 		static_assert(sizeof...(Args) > 0, "No fields specified");
 		m_batch.run("HMGET", parKey, std::forward<Args>(parArgs)...);
 		return *this;
 	}
 
 	template <typename... Args>
-	IncRedisBatch& IncRedisBatch::hmset (boost::string_ref parKey, Args&&... parArgs) {
+	IncRedisBatch& IncRedisBatch::hmset (boost::string_view parKey, Args&&... parArgs) {
 		static_assert(sizeof...(Args) >= 1, "No parameters specified");
 		static_assert(sizeof...(Args) % 2 == 0, "Uneven number of parameters received");
 		m_batch.run("HMSET", parKey, std::forward<Args>(parArgs)...);
@@ -110,7 +110,7 @@ namespace redis {
 	}
 
 	template <typename... Args>
-	IncRedisBatch& IncRedisBatch::sadd (boost::string_ref parKey, Args&&... parArgs) {
+	IncRedisBatch& IncRedisBatch::sadd (boost::string_view parKey, Args&&... parArgs) {
 		static_assert(sizeof...(Args) > 0, "No members specified");
 		m_batch.run("SADD", parKey, std::forward<Args>(parArgs)...);
 		return *this;
@@ -124,7 +124,7 @@ namespace redis {
 	}
 
 	template <typename... Args>
-	IncRedisBatch& IncRedisBatch::zadd (boost::string_ref parKey, ZADD_Mode parMode, bool parChange, Args&&... parArgs) {
+	IncRedisBatch& IncRedisBatch::zadd (boost::string_view parKey, ZADD_Mode parMode, bool parChange, Args&&... parArgs) {
 		static_assert(sizeof...(Args) >= 1, "No score/value pairs specified");
 		static_assert(sizeof...(Args) % 2 == 0, "Uneven number of parameters received");
 
@@ -150,7 +150,7 @@ namespace redis {
 	}
 
 	template <typename... Args>
-	IncRedisBatch& IncRedisBatch::set (boost::string_ref parKey, boost::string_ref parField, ADD_Mode parMode, Args&&... parArgs) {
+	IncRedisBatch& IncRedisBatch::set (boost::string_view parKey, boost::string_view parField, ADD_Mode parMode, Args&&... parArgs) {
 		using dhandy::bt::index_range;
 
 		switch(parMode) {

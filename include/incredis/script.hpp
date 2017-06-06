@@ -21,7 +21,7 @@
 #include "batch.hpp"
 #include "duckhandy/lexical_cast.hpp"
 #include "duckhandy/sequence_bt.hpp"
-#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_view.hpp>
 #include <tuple>
 #include <cassert>
 #include <ciso646>
@@ -33,7 +33,7 @@ namespace redis {
 	public:
 		Script ( void );
 		Script ( Script&& ) = default;
-		Script ( boost::string_ref parSha1, ScriptManager& parManager );
+		Script ( boost::string_view parSha1, ScriptManager& parManager );
 		~Script ( void ) noexcept = default;
 
 		template <typename... Keys, typename... Values>
@@ -45,7 +45,7 @@ namespace redis {
 		template <typename... Keys, typename... Values, std::size_t... KeyIndices, std::size_t... ValueIndices>
 		void run_with_indices ( Batch& parBatch, const std::tuple<Keys...>& parKeys, const std::tuple<Values...>& parValues, dhandy::bt::index_seq<KeyIndices...>, dhandy::bt::index_seq<ValueIndices...> );
 
-		boost::string_ref m_sha1;
+		boost::string_view m_sha1;
 		ScriptManager* m_manager;
 	};
 

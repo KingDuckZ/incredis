@@ -199,7 +199,7 @@ namespace redis {
 		return connected;
 	}
 
-	boost::string_ref AsyncConnection::connection_error() const {
+	boost::string_view AsyncConnection::connection_error() const {
 		return m_local_data->connect_err_msg;
 	}
 

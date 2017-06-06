@@ -25,7 +25,7 @@
 #include <type_traits>
 #include <vector>
 #include <cstddef>
-#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_view.hpp>
 
 namespace redis {
 	template <typename ValueFetch>
@@ -40,18 +40,18 @@ namespace redis {
 		class ScanIteratorBaseClass {
 		protected:
 			explicit ScanIteratorBaseClass ( Command* parCommand );
-			ScanIteratorBaseClass ( Command* parCommand, boost::string_ref parMatchPattern );
+			ScanIteratorBaseClass ( Command* parCommand, boost::string_view parMatchPattern );
 			~ScanIteratorBaseClass ( void ) noexcept = default;
 
 			bool is_connected ( void ) const;
 			Reply run ( const char* parCommand, RedisInt parScanContext, std::size_t parCount );
-			Reply run ( const char* parCommand, const boost::string_ref& parParameter, RedisInt parScanContext, std::size_t parCount );
+			Reply run ( const char* parCommand, const boost::string_view& parParameter, RedisInt parScanContext, std::size_t parCount );
 
 			bool is_equal ( const ScanIteratorBaseClass& parOther ) const { return m_command == parOther.m_command; }
 
 		private:
 			Command* m_command;
-			boost::string_ref m_match_pattern;
+			boost::string_view m_match_pattern;
 		};
 	} //namespace implem
 
@@ -72,9 +72,9 @@ namespace redis {
 		typedef typename base_iterator::iterator_category iterator_category;
 
 		template <typename Dummy=ValueFetch, typename=typename std::enable_if<not HasScanTargetMethod<Dummy>::value>::type>
-		ScanIterator ( Command* parCommand, bool parEnd, boost::string_ref parMatchPattern=boost::string_ref() );
+		ScanIterator ( Command* parCommand, bool parEnd, boost::string_view parMatchPattern=boost::string_view() );
 		template <typename Dummy=ValueFetch, typename=typename std::enable_if<HasScanTargetMethod<Dummy>::value>::type>
-		ScanIterator ( Command* parCommand, boost::string_ref parKey, bool parEnd, boost::string_ref parMatchPattern=boost::string_ref() );
+		ScanIterator ( Command* parCommand, boost::string_view parKey, bool parEnd, boost::string_view parMatchPattern=boost::string_view() );
 
 	private:
 		template <typename T>
@@ -107,17 +107,17 @@ namespace redis {
 	struct ScanSingleValuesInKey {
 		typedef T value_type;
 
-		explicit ScanSingleValuesInKey ( boost::string_ref parScanTarget ) : m_scan_target(parScanTarget) {}
+		explicit ScanSingleValuesInKey ( boost::string_view parScanTarget ) : m_scan_target(parScanTarget) {}
 
 		static constexpr const char* command ( void ) { return "SSCAN"; }
 		static constexpr const std::size_t step = 1;
 		static constexpr const std::size_t work_count = 10;
 
 		static const T& make_value ( const Reply* parItem );
-		boost::string_ref scan_target ( void ) const { return m_scan_target; }
+		boost::string_view scan_target ( void ) const { return m_scan_target; }
 
 	private:
-		boost::string_ref m_scan_target;
+		boost::string_view m_scan_target;
 	};
 
 	template <typename P, char Command, typename A=decltype(P().first), typename B=decltype(P().second)>
@@ -125,17 +125,17 @@ namespace redis {
 		static_assert(Command == ScanCommands::HSCAN or Command == ScanCommands::ZSCAN, "Invalid scan command chosen");
 		typedef P value_type;
 
-		explicit ScanPairs ( boost::string_ref parScanTarget ) : m_scan_target(parScanTarget) {}
+		explicit ScanPairs ( boost::string_view parScanTarget ) : m_scan_target(parScanTarget) {}
 
 		static constexpr const char* command ( void ) { return ScanCommands::_from_integral(Command)._to_string(); }
 		static constexpr const std::size_t step = 2;
 		static constexpr const std::size_t work_count = 10;
 
 		static value_type make_value ( const Reply* parItem );
-		boost::string_ref scan_target ( void ) const { return m_scan_target; }
+		boost::string_view scan_target ( void ) const { return m_scan_target; }
 
 	private:
-		boost::string_ref m_scan_target;
+		boost::string_view m_scan_target;
 	};
 } //namespace redis
 

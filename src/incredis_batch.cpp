@@ -49,32 +49,32 @@ namespace redis {
 		return *this;
 	}
 
-	IncRedisBatch& IncRedisBatch::client_setname (boost::string_ref parName) {
+	IncRedisBatch& IncRedisBatch::client_setname (boost::string_view parName) {
 		m_batch.run("CLIENT", "SETNAME", parName);
 		return *this;
 	}
 
-	IncRedisBatch& IncRedisBatch::hget (boost::string_ref parKey, boost::string_ref parField) {
+	IncRedisBatch& IncRedisBatch::hget (boost::string_view parKey, boost::string_view parField) {
 		m_batch.run("HGET", parKey, parField);
 		return *this;
 	}
 
-	IncRedisBatch& IncRedisBatch::hincrby (boost::string_ref parKey, boost::string_ref parField, int parInc) {
+	IncRedisBatch& IncRedisBatch::hincrby (boost::string_view parKey, boost::string_view parField, int parInc) {
 		m_batch.run("HINCRBY", parKey, parField, dhandy::lexical_cast<std::string>(parInc));
 		return *this;
 	}
 
-	IncRedisBatch& IncRedisBatch::srandmember (boost::string_ref parKey, int parCount) {
+	IncRedisBatch& IncRedisBatch::srandmember (boost::string_view parKey, int parCount) {
 		m_batch.run("SRANDMEMBER", parKey, dhandy::lexical_cast<std::string>(parCount));
 		return *this;
 	}
 
-	IncRedisBatch& IncRedisBatch::srandmember (boost::string_ref parKey) {
+	IncRedisBatch& IncRedisBatch::srandmember (boost::string_view parKey) {
 		m_batch.run("SRANDMEMBER", parKey);
 		return *this;
 	}
 
-	IncRedisBatch& IncRedisBatch::set (boost::string_ref parKey, boost::string_ref parField, ADD_Mode parMode) {
+	IncRedisBatch& IncRedisBatch::set (boost::string_view parKey, boost::string_view parField, ADD_Mode parMode) {
 		switch(parMode) {
 		case ADD_None:
 			m_batch.run("SET", parKey, parField);
@@ -89,7 +89,7 @@ namespace redis {
 		return *this;
 	}
 
-	IncRedisBatch& IncRedisBatch::zrangebyscore (boost::string_ref parKey, double parMin, bool parMinIncl, double parMax, bool parMaxIncl, bool parWithScores) {
+	IncRedisBatch& IncRedisBatch::zrangebyscore (boost::string_view parKey, double parMin, bool parMinIncl, double parMax, bool parMaxIncl, bool parWithScores) {
 		auto lower_bound = make_boundary(parMin, not parMinIncl);
 		auto upper_bound = make_boundary(parMax, not parMaxIncl);
 

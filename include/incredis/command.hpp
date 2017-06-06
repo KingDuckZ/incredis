@@ -28,7 +28,7 @@
 #include <cassert>
 #include <vector>
 #include <utility>
-#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_view.hpp>
 #include <boost/range/iterator_range_core.hpp>
 #include <ciso646>
 #include <stdexcept>
@@ -47,7 +47,7 @@ namespace redis {
 		void wait_for_disconnect ( void );
 
 		bool is_connected ( void ) const;
-		boost::string_ref connection_error ( void ) const;
+		boost::string_view connection_error ( void ) const;
 
 		Batch make_batch ( void );
 		Script make_script ( const std::string& parScript );
