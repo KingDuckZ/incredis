@@ -6,6 +6,8 @@ include(shared_git_project)
 include(CTest)
 
 option(INCREDIS_FORCE_DISABLE_TESTS "Ignore unit tests even if BUILD_TESTING is set to ON - useful if you want to disable incredis tests from your top-level cmake project" OFF)
+option(INCREDIS_OWN_BETTER_ENUM "Use bundled better-enum" ON)
+option(INCREDIS_OWN_DUCKHANDY "Use bundled duckhandy" ON)
 set(CMAKE_INSTALL_INCLUDEDIR "" CACHE PATH "Specify the output directory for header files (default is include)")
 set(CMAKE_INSTALL_LIBDIR "" CACHE PATH "Specify the output directory for libraries (default is lib)")
 set(CMAKE_INSTALL_PKGCONFIGDIR "" CACHE PATH "Specify the output directory for pkgconfig files (default is lib/pkgconfig)")
@@ -27,7 +29,15 @@ find_package(CryptoPP 5.6)
 find_package(libev 4.0 REQUIRED)
 find_package(Boost 1.53.0 REQUIRED)
 
-add_shared_git_project("lib/duckhandy")
+if (NOT INCREDIS_OWN_BETTER_ENUM)
+	find_package(better_enum REQUIRED)
+endif()
+if (INCREDIS_OWN_DUCKHANDY)
+	add_shared_git_project("lib/duckhandy")
+else()
+	find_package(duckhandy REQUIRED)
+endif()
+
 
 add_library(${PROJECT_NAME} SHARED
 	src/command.cpp
@@ -45,21 +55,38 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME} SYSTEM
 	PUBLIC ${Boost_INCLUDE_DIRS}
 	PRIVATE ${HIREDIS_INCLUDE_DIRS}
-	PUBLIC lib/better-enums
 	PRIVATE ${LIBEV_INCLUDE_DIRS}
 )
-target_include_directories(${PROJECT_NAME} PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:include>
+target_include_directories(${PROJECT_NAME}
+	PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	PUBLIC $<INSTALL_INTERFACE:include>
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/incredis
 )
+
+if (INCREDIS_OWN_BETTER_ENUM)
+	target_include_directories(${PROJECT_NAME} SYSTEM
+		PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/better-enums>
+	)
+else()
+	target_include_directories(${PROJECT_NAME} SYSTEM
+		PUBLIC ${BETTER_ENUM_INCLUDE_DIRS}
+	)
+endif()
+if (INCREDIS_OWN_DUCKHANDY)
+	target_link_libraries(${PROJECT_NAME}
+		PUBLIC $<BUILD_INTERFACE:duckhandy>
+	)
+else()
+	target_include_directories(${PROJECT_NAME}
+		PUBLIC ${DUCKHANDY_INCLUDE_DIRS}
+	)
+endif()
 
 target_link_libraries(${PROJECT_NAME}
 	PRIVATE ${HIREDIS_LIBRARIES}
 	PRIVATE ${LIBEV_LIBRARIES}
 	PRIVATE ${Boost_LIBRARIES}
-	PUBLIC duckhandy
 )
 
 configure_file(
