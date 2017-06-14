@@ -101,7 +101,7 @@ namespace redis {
 		return optional_string(m_command.run("HGET", parKey, parField));
 	}
 
-	int IncRedis::hincrby (boost::string_view parKey, boost::string_view parField, int parInc) {
+	RedisInt IncRedis::hincrby (boost::string_view parKey, boost::string_view parField, int parInc) {
 		const auto inc = dhandy::lexical_cast<std::string>(parInc);
 		auto reply = m_command.run("HINCRBY", parKey, parField, inc);
 		return get_integer(reply);

@@ -72,7 +72,7 @@ namespace redis {
 		opt_string_list hmget ( boost::string_view parKey, Args&&... parArgs );
 		template <typename... Args>
 		bool hmset ( boost::string_view parKey, Args&&... parArgs );
-		int hincrby ( boost::string_view parKey, boost::string_view parField, int parInc );
+		RedisInt hincrby ( boost::string_view parKey, boost::string_view parField, int parInc );
 
 		//Set
 		opt_string_list srandmember ( boost::string_view parKey, int parCount );
@@ -90,7 +90,7 @@ namespace redis {
 		RedisInt dbsize ( void );
 		bool expire ( boost::string_view parKey, RedisInt parTTL );
 		template <typename... Args>
-		bool del (Args&&... parArgs);
+		RedisInt del (Args&&... parArgs);
 
 		//String
 		opt_string get ( boost::string_view parKey );
@@ -118,10 +118,10 @@ namespace redis {
 	}
 
 	template <typename... Args>
-	bool IncRedis::del (Args&&... parArgs) {
+	RedisInt IncRedis::del (Args&&... parArgs) {
 		static_assert(sizeof...(Args) > 0, "No keys specified");
-		const auto ret = redis::get<StatusString>(m_command.run("DEL", std::forward<Args>(parArgs)...));
-		return ret.is_ok();
+		const auto ret = m_command.run("DEL", std::forward<Args>(parArgs)...);
+		return get_integer(ret);
 	}
 
 } //namespace redis
