@@ -89,6 +89,8 @@ namespace redis {
 		bool flushdb ( void );
 		RedisInt dbsize ( void );
 		bool expire ( boost::string_view parKey, RedisInt parTTL );
+		template <typename... Args>
+		bool del (Args&&... parArgs);
 
 		//String
 		opt_string get ( boost::string_view parKey );
@@ -114,6 +116,14 @@ namespace redis {
 		const auto ret = redis::get<StatusString>(m_command.run("HMSET", parKey, std::forward<Args>(parArgs)...));
 		return ret.is_ok();
 	}
+
+	template <typename... Args>
+	bool IncRedis::del (Args&&... parArgs) {
+		static_assert(sizeof...(Args) > 0, "No keys specified");
+		const auto ret = redis::get<StatusString>(m_command.run("DEL", std::forward<Args>(parArgs)...));
+		return ret.is_ok();
+	}
+
 } //namespace redis
 
 #endif
