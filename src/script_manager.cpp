@@ -108,4 +108,9 @@ namespace redis {
 		return boost::string_view(it_inserted->second.data(), it_inserted->second.size());
 	}
 #endif
+
+	void ScriptManager::update_command_ptr (Command* parNewPtr) {
+		assert(parNewPtr);
+		m_command = parNewPtr;
+	}
 } //namespace redis

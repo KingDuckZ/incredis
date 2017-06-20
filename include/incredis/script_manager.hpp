@@ -39,13 +39,14 @@ namespace redis {
 		explicit ScriptManager ( Command* parCommand );
 
 		boost::string_view submit_lua_script ( const std::string& parScript );
+		void update_command_ptr (Command* parNewPtr);
 
 	private:
 		using Sha1Array = std::array<char, 40>;
 
 		boost::string_view add_lua_script_ifn ( const std::string& parScript );
 
-		Command* const m_command;
+		Command* m_command;
 #if defined(MAKE_SHA1_WITH_CRYPTOPP)
 		std::set<Sha1Array> m_known_hashes;
 #else

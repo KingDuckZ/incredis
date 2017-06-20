@@ -48,7 +48,11 @@ namespace redis {
 	{
 	}
 
-	Command::Command (Command&&) = default;
+	Command::Command (Command&& parOther) :
+		m_local_data(std::move(parOther.m_local_data))
+	{
+		m_local_data->lua_scripts.update_command_ptr(this);
+	}
 
 	Command::Command (std::string&& parSocket) :
 		Command(std::move(parSocket), 0)
