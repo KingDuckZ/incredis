@@ -90,7 +90,7 @@ namespace redis {
 		return Batch(&m_local_data->async_connection, m_local_data->thread_context);
 	}
 
-	Script Command::make_script (const std::string &parScript) {
+	Script Command::make_script (const boost::string_view &parScript) {
 		auto sha1 = m_local_data->lua_scripts.submit_lua_script(parScript);
 		return Script(sha1, m_local_data->lua_scripts);
 	}

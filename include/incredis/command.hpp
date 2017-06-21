@@ -50,7 +50,7 @@ namespace redis {
 		boost::string_view connection_error ( void ) const;
 
 		Batch make_batch ( void );
-		Script make_script ( const std::string& parScript );
+		Script make_script ( const boost::string_view& parScript );
 
 		template <typename... Args>
 		Reply run ( const char* parCommand, Args&&... parArgs );

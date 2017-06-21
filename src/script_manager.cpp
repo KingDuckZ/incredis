@@ -45,7 +45,7 @@ namespace redis {
 	}
 
 #if defined(MAKE_SHA1_WITH_CRYPTOPP)
-	boost::string_view ScriptManager::add_lua_script_ifn (const std::string& parScript) {
+	boost::string_view ScriptManager::add_lua_script_ifn (const boost::string_view& parScript) {
 		assert(m_command->is_connected());
 
 		if (parScript.empty())
@@ -88,10 +88,11 @@ namespace redis {
 		return boost::string_view(it_inserted->data(), it_inserted->size());
 	}
 #else
-	boost::string_view ScriptManager::add_lua_script_ifn (const std::string& parScript) {
+	boost::string_view ScriptManager::add_lua_script_ifn (const boost::string_view& parScript) {
 		assert(m_command->is_connected());
 
-		auto it_found = m_known_scripts.find(parScript);
+		std::string script_cpy = std::string(parScript);
+		auto it_found = m_known_scripts.find(script_cpy);
 		const bool was_present = (m_known_scripts.end() != it_found);
 		if (was_present) {
 			return boost::string_view(it_found->second.data(), it_found->second.size());
@@ -103,7 +104,7 @@ namespace redis {
 		const auto sha1_str = get_string(reply);
 		Sha1Array sha1_array;
 		std::copy(sha1_str.begin(), sha1_str.end(), sha1_array.begin());
-		auto it_inserted = m_known_scripts.insert(it_found, std::make_pair(parScript, sha1_array));
+		auto it_inserted = m_known_scripts.insert(it_found, std::make_pair(std::move(script_cpy), sha1_array));
 
 		return boost::string_view(it_inserted->second.data(), it_inserted->second.size());
 	}

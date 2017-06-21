@@ -38,13 +38,13 @@ namespace redis {
 	public:
 		explicit ScriptManager ( Command* parCommand );
 
-		boost::string_view submit_lua_script ( const std::string& parScript );
+		boost::string_view submit_lua_script ( const boost::string_view& parScript );
 		void update_command_ptr (Command* parNewPtr);
 
 	private:
 		using Sha1Array = std::array<char, 40>;
 
-		boost::string_view add_lua_script_ifn ( const std::string& parScript );
+		boost::string_view add_lua_script_ifn ( const boost::string_view& parScript );
 
 		Command* m_command;
 #if defined(MAKE_SHA1_WITH_CRYPTOPP)
@@ -54,7 +54,7 @@ namespace redis {
 #endif
 	};
 
-	inline boost::string_view ScriptManager::submit_lua_script (const std::string& parScript) {
+	inline boost::string_view ScriptManager::submit_lua_script (const boost::string_view& parScript) {
 		return add_lua_script_ifn(parScript);
 	}
 } //namespace redis
