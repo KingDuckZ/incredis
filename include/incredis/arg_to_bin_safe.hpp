@@ -19,6 +19,7 @@
 #define id9348909738B047B7B6912D73CB519039
 
 #include "duckhandy/compatibility.h"
+#include "duckhandy/endianness.hpp"
 #include <cstddef>
 #include <boost/utility/string_view.hpp>
 #include <string>
@@ -74,6 +75,15 @@ namespace redis {
 
 		private:
 			boost::string_view m_data;
+		};
+
+		template<>
+		struct MakeCharInfo<RedisInt> {
+			MakeCharInfo (RedisInt parValue) : m_value(dhandy::htobe(parValue)) {}
+			const char* data() const { return reinterpret_cast<const char*>(&m_value); }
+			std::size_t size() const { return sizeof(RedisInt); }
+		private:
+			RedisInt m_value;
 		};
 
 		template <typename T>
