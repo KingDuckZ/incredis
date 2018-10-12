@@ -1,9 +1,9 @@
-[submodule "lib/duckhandy"]
-	path = lib/duckhandy
-	url = ../duckhandy.git
 [submodule "lib/better-enums"]
 	path = lib/better-enums
 	url = https://github.com/aantron/better-enums.git
 [submodule "lib/catch"]
 	path = lib/catch
 	url = https://github.com/philsquared/Catch.git
+[submodule "lib/duckhandy"]
+	path = lib/duckhandy
+	url = http://alarmpi.no-ip.org/gitan/King_DuckZ/duckhandy.git
