@@ -16,7 +16,7 @@
  */
 
 #include "reply.hpp"
-#include "duckhandy/lexical_cast.hpp"
+#include "incredis/int_conv.hpp"
 #include <boost/variant/get.hpp>
 
 namespace redis {
@@ -35,14 +35,12 @@ namespace redis {
 	}
 
 	RedisInt get_integer_autoconv_if_str (const Reply &parReply) {
-		using dhandy::lexical_cast;
-
 		const auto type = parReply.which();
 		switch (type) {
 		case RedisVariantType_Integer:
 			return get_integer(parReply);
 		case RedisVariantType_String:
-			return lexical_cast<RedisInt>(get_string(parReply));
+			return int_conv<RedisInt>(get_string(parReply));
 		default:
 			assert(false);
 			return 0;

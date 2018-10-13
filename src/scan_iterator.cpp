@@ -16,7 +16,7 @@
  */
 
 #include "scan_iterator.hpp"
-#include "duckhandy/lexical_cast.hpp"
+#include "incredis/int_conv.hpp"
 #include "command.hpp"
 #include <cassert>
 #include <ciso646>
@@ -42,8 +42,8 @@ namespace redis {
 		}
 
 		Reply ScanIteratorBaseClass::run (const char* parCommand, RedisInt parScanContext, std::size_t parCount) {
-			const auto scan_context = dhandy::lexical_cast<std::string>(parScanContext);
-			const auto count_hint = dhandy::lexical_cast<std::string>(parCount);
+			const auto scan_context = int_conv<std::string>(parScanContext);
+			const auto count_hint = int_conv<std::string>(parCount);
 			if (m_match_pattern.empty())
 				return m_command->run(parCommand, scan_context, "COUNT", count_hint);
 			else
@@ -51,8 +51,8 @@ namespace redis {
 		}
 
 		Reply ScanIteratorBaseClass::run (const char* parCommand, const boost::string_view& parParameter, RedisInt parScanContext, std::size_t parCount) {
-			const auto scan_context = dhandy::lexical_cast<std::string>(parScanContext);
-			const auto count_hint = dhandy::lexical_cast<std::string>(parCount);
+			const auto scan_context = int_conv<std::string>(parScanContext);
+			const auto count_hint = int_conv<std::string>(parCount);
 			if (m_match_pattern.empty())
 				return m_command->run(parCommand, parParameter, scan_context, "COUNT", count_hint);
 			else

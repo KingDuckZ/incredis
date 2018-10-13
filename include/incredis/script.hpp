@@ -19,7 +19,7 @@
 #define id5B30CDA57F894CD6888093B64F9433DA
 
 #include "batch.hpp"
-#include "duckhandy/lexical_cast.hpp"
+#include "incredis/int_conv.hpp"
 #include "duckhandy/sequence_bt.hpp"
 #include <boost/utility/string_view.hpp>
 #include <tuple>
@@ -73,7 +73,7 @@ namespace redis {
 		parBatch.run(
 			"EVALSHA",
 			m_sha1,
-			dhandy::lexical_cast<std::string>(sizeof...(Keys)),
+			int_conv<std::string>(sizeof...(Keys)),
 			std::get<KeyIndices>(parKeys)...,
 			std::get<ValueIndices>(parValues)...
 		);

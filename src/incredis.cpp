@@ -17,7 +17,7 @@
 
 #include "incredis.hpp"
 #include "duckhandy/compatibility.h"
-#include "duckhandy/lexical_cast.hpp"
+#include "incredis/int_conv.hpp"
 #include <cassert>
 #include <ciso646>
 
@@ -102,13 +102,12 @@ namespace redis {
 	}
 
 	RedisInt IncRedis::hincrby (boost::string_view parKey, boost::string_view parField, int parInc) {
-		const auto inc = dhandy::lexical_cast<std::string>(parInc);
-		auto reply = m_command.run("HINCRBY", parKey, parField, inc);
+		auto reply = m_command.run("HINCRBY", parKey, parField, int_to_ary_dec(parInc).to<boost::string_view>());
 		return get_integer(reply);
 	}
 
 	auto IncRedis::srandmember (boost::string_view parKey, int parCount) -> opt_string_list {
-		return optional_string_list(m_command.run("SRANDMEMBER", parKey, dhandy::lexical_cast<std::string>(parCount)));
+		return optional_string_list(m_command.run("SRANDMEMBER", parKey, int_to_ary_dec(parCount).to<boost::string_view>()));
 	}
 
 	auto IncRedis::srandmember (boost::string_view parKey) -> opt_string {
@@ -142,7 +141,7 @@ namespace redis {
 	}
 
 	bool IncRedis::expire (boost::string_view parKey, RedisInt parTTL) {
-		const auto ret = redis::get<RedisInt>(m_command.run("EXPIRE", parKey, dhandy::lexical_cast<std::string>(parTTL)));
+		const auto ret = redis::get<RedisInt>(m_command.run("EXPIRE", parKey, int_to_ary_dec(parTTL).to<boost::string_view>()));
 		return (ret == 1 ? true : false);
 	}
 

@@ -16,7 +16,7 @@
  */
 
 #include "script_manager.hpp"
-#include "duckhandy/lexical_cast.hpp"
+#include "incredis/int_conv.hpp"
 #include "command.hpp"
 #include <cassert>
 #if defined(MAKE_SHA1_WITH_CRYPTOPP)
@@ -51,8 +51,6 @@ namespace redis {
 		if (parScript.empty())
 			return boost::string_view();
 
-		using dhandy::lexical_cast;
-
 		static_assert(20 == CryptoPP::SHA1::DIGESTSIZE, "Unexpected SHA1 digest size");
 		static_assert(sizeof(LuaScriptHash) >= CryptoPP::SHA1::DIGESTSIZE, "Wrong SHA1 struct size");
 		static_assert(Sha1Array().size() == CryptoPP::SHA1::DIGESTSIZE * 2, "Wrong array size");
@@ -60,13 +58,13 @@ namespace redis {
 		LuaScriptHash digest;
 		CryptoPP::SHA1().CalculateDigest(digest.raw_bytes, reinterpret_cast<const uint8_t*>(parScript.data()), parScript.size());
 		//TODO: change when lexical_cast will support arrays
-		auto sha1_str_parta = lexical_cast<std::string, dhandy::tags::hexl>(__builtin_bswap64(digest.part_a));
-		auto sha1_str_partb = lexical_cast<std::string, dhandy::tags::hexl>(__builtin_bswap64(digest.part_b));
-		auto sha1_str_partc = lexical_cast<std::string, dhandy::tags::hexl>(__builtin_bswap32(digest.part_c));
+		auto sha1_str_parta = int_to_ary_hex(__builtin_bswap64(digest.part_a));
+		auto sha1_str_partb = int_to_ary_hex(__builtin_bswap64(digest.part_b));
+		auto sha1_str_partc = int_to_ary_hex(__builtin_bswap32(digest.part_c));
 		const std::string sha1_str =
-			std::string(sizeof(digest.part_a) * 2 - sha1_str_parta.size(), '0') + sha1_str_parta +
-			std::string(sizeof(digest.part_b) * 2 - sha1_str_partb.size(), '0') + sha1_str_partb +
-			std::string(sizeof(digest.part_c) * 2 - sha1_str_partc.size(), '0') + sha1_str_partc
+			std::string(sizeof(digest.part_a) * 2 - sha1_str_parta.size() + 1, '0') + sha1_str_parta +
+			std::string(sizeof(digest.part_b) * 2 - sha1_str_partb.size() + 1, '0') + sha1_str_partb +
+			std::string(sizeof(digest.part_c) * 2 - sha1_str_partc.size() + 1, '0') + sha1_str_partc
 		;
 		Sha1Array sha1_array;
 		assert(sha1_str.size() == sha1_array.size());

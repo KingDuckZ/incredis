@@ -16,7 +16,7 @@
  */
 
 #include "incredis_batch.hpp"
-#include "duckhandy/lexical_cast.hpp"
+#include "incredis/int_conv.hpp"
 #include <sstream>
 #include <utility>
 #include <ciso646>
@@ -45,7 +45,7 @@ namespace redis {
 	}
 
 	IncRedisBatch& IncRedisBatch::select (int parIndex) {
-		m_batch.run("SELECT", dhandy::lexical_cast<std::string>(parIndex));
+		m_batch.run("SELECT", int_to_ary_dec(parIndex).to<boost::string_view>());
 		return *this;
 	}
 
@@ -60,12 +60,12 @@ namespace redis {
 	}
 
 	IncRedisBatch& IncRedisBatch::hincrby (boost::string_view parKey, boost::string_view parField, int parInc) {
-		m_batch.run("HINCRBY", parKey, parField, dhandy::lexical_cast<std::string>(parInc));
+		m_batch.run("HINCRBY", parKey, parField, int_to_ary_dec(parInc).to<boost::string_view>());
 		return *this;
 	}
 
 	IncRedisBatch& IncRedisBatch::srandmember (boost::string_view parKey, int parCount) {
-		m_batch.run("SRANDMEMBER", parKey, dhandy::lexical_cast<std::string>(parCount));
+		m_batch.run("SRANDMEMBER", parKey, int_to_ary_dec(parCount).to<boost::string_view>());
 		return *this;
 	}
 
