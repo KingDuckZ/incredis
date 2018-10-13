@@ -21,7 +21,7 @@
 #include "batch.hpp"
 #include "duckhandy/sequence_bt.hpp"
 #include <boost/utility/string_view.hpp>
-#include <boost/lexical_cast.hpp>
+#include <incredis/int_conv.hpp>
 #include <type_traits>
 
 namespace redis {
@@ -177,7 +177,7 @@ namespace redis {
 		struct stringize_or_forward_impl<IGNORE_COUNT, IDX, T, true> {
 			static_assert(std::is_floating_point<T>::value, "Value must be given as floating point number");
 			typedef std::string type;
-			static std::string do_it ( T parT ) { return boost::lexical_cast<std::string>(parT); }
+			static std::string do_it ( T parT ) { return int_conv<std::string>(parT); }
 		};
 
 		template <std::size_t IGNORE_COUNT, std::size_t IDX, typename T>
