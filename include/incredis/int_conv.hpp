@@ -66,13 +66,15 @@ namespace redis {
 		template <typename T>
 		struct IntConv<T, std::enable_if_t<std::is_integral_v<T>, std::string>> {
 			static T conv (const std::string& in) {
-				return dhandy::ary_to_int<T, char, 10, AsciiTranslator>(in.data(), in.data() + in.size());
+				const auto size = in.size() - (in.empty() or in.back() ? 0 : 1);
+				return dhandy::ary_to_int<T, char, 10, AsciiTranslator>(in.data(), in.data() + size);
 			}
 		};
 		template <typename T>
 		struct IntConv<T, std::enable_if_t<std::is_integral_v<T>, boost::string_view>> {
 			static T conv (const boost::string_view& in) {
-				return dhandy::ary_to_int<T, char, 10, AsciiTranslator>(in.data(), in.data() + in.size());
+				const auto size = in.size() - (in.empty() or in.back() ? 0 : 1);
+				return dhandy::ary_to_int<T, char, 10, AsciiTranslator>(in.data(), in.data() + size);
 			}
 		};
 	} //namespace implem
