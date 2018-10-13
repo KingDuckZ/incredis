@@ -20,6 +20,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <boost/utility/string_view.hpp>
 #include "duckhandy/implem/int_conv.hpp"
 
 namespace redis {
@@ -69,8 +70,8 @@ namespace redis {
 			}
 		};
 		template <typename T>
-		struct IntConv<T, std::enable_if_t<std::is_integral_v<T>, std::string_view>> {
-			static T conv (const std::string_view& in) {
+		struct IntConv<T, std::enable_if_t<std::is_integral_v<T>, boost::string_view>> {
+			static T conv (const boost::string_view& in) {
 				return dhandy::ary_to_int<T, char, 10, AsciiTranslator>(in.data(), in.data() + in.size());
 			}
 		};
