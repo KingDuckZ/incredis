@@ -4,6 +4,7 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 include(shared_git_project)
 include(CTest)
+include(GNUInstallDirs)
 
 option(INCREDIS_FORCE_DISABLE_TESTS "Ignore unit tests even if BUILD_TESTING is set to ON - useful if you want to disable incredis tests from your top-level cmake project" OFF)
 option(INCREDIS_OWN_BETTER_ENUM "Use bundled better-enum" ON)
@@ -113,9 +114,9 @@ endif()
 set(INCREDIS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION bin
-	ARCHIVE DESTINATION lib/static
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT ${PROJECT_NAME}Config DESTINATION share/${PROJECT_NAME}/cmake)
